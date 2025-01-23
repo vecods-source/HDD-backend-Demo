@@ -187,11 +187,11 @@ route.post("/insert-order", async (req, res) => {
 });
 
 route.post("/getSerialBattery", async (req, res) => {
-  const { serial_number } = req.body;
-  console.log(serial_number);
+  const { Rserial } = req.body;
+  console.log(Rserial);
   const response = await pool.query(
     "SELECT sold_date FROM orders WHERE serial_number=$1 LIMIT 1",
-    [serial_number]
+    [Rserial]
   );
   console.log(response);
   if (response.rowCount == 0) {
