@@ -7,7 +7,6 @@ route.use(bodyParser.urlencoded({ extended: true }));
 
 route.post("/searchCar", async (req, res) => {
   const { carName, carModel, carYear } = req.body;
-
   const carYearn = parseInt(carYear, 10);
 
   if (isNaN(carYearn)) {
@@ -64,10 +63,57 @@ route.post("/searchBattery", async (req, res) => {
   }
 });
 
-route.post("/add-order", async (req, res) => {
+route.post("/get-battery-det", async (req, res) => {
+  const { battery_name } = req.body;
+
+  try {
+    const data = await pool.query(
+      "SELECT serial_number, tech_id FROM current_batteries WHERE battery_name = $1 AND battery_status IN ('Loaded', 'Stock') ORDER BY CASE WHEN battery_status = 'Loaded' THEN 1 ELSE 2 END LIMIT 1;",
+      [battery_name]
+    );
+    if (data.rows.length === 0)
+      return res.status(404).json({ message: "No Stock or Loaded batteries" });
+    console.log("data found: " + data);
+    res.status(200).json(data.rows[0]);
+  } catch (err) {
+    console.log("catch error: " + err);
+    res.status(500).json({ message: "battery not found" });
+  }
+});
+
+route.get("/get-orders", async (req, res) => {
+  try {
+    const data = await pool.query(
+      "SELECT total_price, discount, delievery_fees, payment_method, installed_by, serial_number,status,sold_date FROM orders WHERE status = 'Pending'"
+    );
+
+    if (data.rowCount > 0) {
+      const dataTosend = data.rows;
+
+      for (const element of dataTosend) {
+        const batteryResult = await pool.query(
+          "SELECT battery_name FROM current_batteries WHERE serial_number = $1;",
+          [element.serial_number]
+        );
+
+        element.battery_name = batteryResult.rows[0]?.battery_name || null;
+      }
+
+      console.log(dataTosend);
+      res.status(200).json(dataTosend);
+    } else {
+      console.log("No rows found");
+      res.status(404).json({ message: "No pending orders found" });
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+route.post("/insert-order", async (req, res) => {
   const {
     driver,
-    battery_name,
     date,
     discount,
     delieveryFees,
@@ -79,40 +125,32 @@ route.post("/add-order", async (req, res) => {
     carYear,
     carPlate,
     time,
-    // cAddress,
+    serial_number,
   } = req.body;
+  let driverID;
+  console.log(driver);
+  switch (driver) {
+    case "Sikandar":
+      driverID = 1;
+      break;
+    case "Jawad":
+      driverID = 2;
+      break;
+    case "Loay":
+      driverID = 3;
+      break;
+    case "Abdulrahman":
+      driverID = 4;
+      break;
+    case "Anwar":
+      driverID = 5;
+      break;
+    default:
+      driverID = null;
+      console.log("Driver not found.");
+      break;
+  }
   try {
-    const data = await pool.query(
-      "SELECT serial_number FROM current_batteries WHERE battery_name = $1 AND battery_status IN ('Loaded', 'Stock') ORDER BY CASE WHEN battery_status = 'Loaded' THEN 1 ELSE 2 END LIMIT 1;",
-      [battery_name]
-    );
-    if (data.rows === 0)
-      return res.status(404).json({ message: "No Stock or Loaded batteries" });
-    const serial_number = data.rows[0].serial_number;
-    console.log(serial_number);
-    let driverID;
-
-    switch (driver) {
-      case "Sikandar":
-        driverID = 1;
-        break;
-      case "Jawad":
-        driverID = 2;
-        break;
-      case "Loay":
-        driverID = 3;
-        break;
-      case "Abdulrahman":
-        driverID = 4;
-        break;
-      case "Anwar":
-        driverID = 5;
-        break;
-      default:
-        driverID = null; // Default case if no match
-        console.log("Driver not found.");
-        break;
-    }
     const insertQue = await pool.query(
       "INSERT INTO orders (installed_by, serial_number,sold_date,discount,delievery_fees,total_price,status,cname,cphone,ccarman,ccarmodelname,ccarmodelyear,ccarplatenumber,delievery_time) VALUES ($1,$2,$3,$4,$5,$6,'Pending',$7,$8,$9,$10,$11,$12,$13) RETURNING *;",
       [
@@ -143,52 +181,72 @@ route.post("/add-order", async (req, res) => {
       });
     }
   } catch (err) {
-    console.log("Nice try " + err);
+    console.log("error inserting data " + err);
     res.status(500).json({ message: "catch error" });
   }
 });
-route.get("/get-orders", async (req, res) => {
-  try {
-    const data = await pool.query(
-      "SELECT total_price, discount, delievery_fees, payment_method, installed_by, serial_number FROM orders WHERE status = 'Pending'"
-    );
 
-    if (data.rowCount > 0) {
-      const dataTosend = data.rows;
-
-      for (const element of dataTosend) {
-        const batteryResult = await pool.query(
-          "SELECT battery_name FROM current_batteries WHERE serial_number = $1;",
-          [element.serial_number]
-        );
-
-        // Add the battery_name to the current object
-        element.battery_name = batteryResult.rows[0]?.battery_name || null;
-      }
-
-      // Log and respond after all battery names are added
-      console.log(dataTosend);
-      res.status(200).json(dataTosend);
-    } else {
-      console.log("No rows found");
-      res.status(404).json({ message: "No pending orders found" });
-    }
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Internal server error" });
+route.post("/getSerialBattery", async (req, res) => {
+  const { serial_number } = req.body;
+  console.log(serial_number);
+  const response = await pool.query(
+    "SELECT sold_date FROM orders WHERE serial_number=$1 LIMIT 1",
+    [serial_number]
+  );
+  console.log(response);
+  if (response.rowCount == 0) {
+    return res.status(404).json({ message: "Battery Not Found" });
   }
+  const start_date = response.rows[0].sold_date;
+  const timeL = timeLeft(start_date);
+  res.status(200).json(timeL);
 });
 
-// name: "",
-// phone: "",
-// carPlate: "",
-// time: "",
-// date: "",
-// driver: "",
-// discount: "",
-// delieveryFees: "",
-// Additional API Endpoints (currently unused)
-route.get("/api/getbatteryname", (req, res) => {});
-route.get("/api/getbatterycar", (req, res) => {});
+function timeLeft(isoDate) {
+  const dateToCheck = new Date(isoDate);
+  const dateAfterOneYear = new Date(dateToCheck);
+  dateAfterOneYear.setFullYear(dateAfterOneYear.getFullYear() + 1);
 
+  const currentDate = new Date();
+
+  const timeDifference = dateAfterOneYear - currentDate;
+
+  if (timeDifference < 0) {
+    const exceededDays = Math.abs(
+      Math.floor(timeDifference / (1000 * 60 * 60 * 24))
+    );
+    const exceededMonths = Math.floor(exceededDays / 30);
+    const days = exceededDays % 30;
+
+    return { exceeded: true, months: exceededMonths, days };
+  }
+
+  const totalDays = Math.floor(timeDifference / (1000 * 60 * 60 * 24));
+
+  const months = Math.floor(totalDays / 30);
+  const days = totalDays % 30;
+
+  return { exceeded: false, months, days };
+}
+
+route.post("/add-to-returned", async (req, res) => {
+  const { serial_number, claim_rec, newSN } = req.body;
+  console.log(claim_rec);
+  const present = new Date().toISOString().split("T")[0]; // Get current date in 'YYYY-MM-DD' format
+  try {
+    await pool.query(
+      "UPDATE current_batteries SET battery_status = 'Replaced', date_returned = $1 WHERE serial_number = $2",
+      [present, serial_number]
+    ); //change status and add return date
+    await pool.query(
+      "UPDATE orders SET serial_number = $1, replaced_with = $2, rec_number= $3 WHERE serial_number = $4",
+      [newSN, serial_number, claim_rec, serial_number]
+    );
+    //change the old serial with the new one and change the replaced with the old SN and replace recept claim
+    res.status(200).json({ message: "row updated succesfully" });
+  } catch (err) {
+    res.status(500).json({ message: "error with the queries" });
+    console.log(err);
+  }
+});
 export default route;
