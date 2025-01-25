@@ -185,7 +185,19 @@ route.post("/insert-order", async (req, res) => {
     res.status(500).json({ message: "catch error" });
   }
 });
-
+route.post("/getWarrantyCard", async (req, res) => {
+  const { WarrantyCard } = req.body;
+  const response = await pool.query(
+    "SELECT sold_date FROM orders WHERE warranty_card=$1 LIMIT 1",
+    [WarrantyCard]
+  );
+  if (response.rowCount == 0) {
+    return res.status(404).json({ message: "Battery Not Found" });
+  }
+  const start_date = response.rows[0].sold_date;
+  const timeL = timeLeft(start_date);
+  res.status(200).json(timeL);
+});
 route.post("/getSerialBattery", async (req, res) => {
   const { Rserial } = req.body;
   console.log(Rserial);
@@ -232,17 +244,16 @@ function timeLeft(isoDate) {
 route.post("/add-to-returned", async (req, res) => {
   const { serial_number, claim_rec, newSN } = req.body;
   console.log(claim_rec);
-  const present = new Date().toISOString().split("T")[0]; // Get current date in 'YYYY-MM-DD' format
+  const present = new Date().toISOString().split("T")[0];
   try {
     await pool.query(
       "UPDATE current_batteries SET battery_status = 'Replaced', date_returned = $1 WHERE serial_number = $2",
       [present, serial_number]
-    ); //change status and add return date
+    );
     await pool.query(
       "UPDATE orders SET serial_number = $1, replaced_with = $2, rec_number= $3 WHERE serial_number = $4",
       [newSN, serial_number, claim_rec, serial_number]
     );
-    //change the old serial with the new one and change the replaced with the old SN and replace recept claim
     res.status(200).json({ message: "row updated succesfully" });
   } catch (err) {
     res.status(500).json({ message: "error with the queries" });
