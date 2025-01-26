@@ -1,4 +1,4 @@
-import express from "express";
+import express, { query } from "express";
 import pool from "../dp.js";
 import bodyParser from "body-parser";
 const route = express.Router();
@@ -80,11 +80,12 @@ route.post("/get-battery-det", async (req, res) => {
     res.status(500).json({ message: "battery not found" });
   }
 });
+//................................................................................................................................
 
 route.get("/get-orders", async (req, res) => {
   try {
     const data = await pool.query(
-      "SELECT total_price, discount, delievery_fees, payment_method, installed_by, serial_number,status,sold_date FROM orders WHERE status = 'Pending'"
+      "SELECT total_price, discount, delievery_fees, payment_method, installed_by, serial_number,status,sold_date FROM orders WHERE status = 'Pending'" // AND is_delivered='Yes'
     );
 
     if (data.rowCount > 0) {
@@ -152,7 +153,7 @@ route.post("/insert-order", async (req, res) => {
   }
   try {
     const insertQue = await pool.query(
-      "INSERT INTO orders (installed_by, serial_number,sold_date,discount,delievery_fees,total_price,status,cname,cphone,ccarman,ccarmodelname,ccarmodelyear,ccarplatenumber,delievery_time) VALUES ($1,$2,$3,$4,$5,$6,'Pending',$7,$8,$9,$10,$11,$12,$13) RETURNING *;",
+      "INSERT INTO orders (installed_by, serial_number,sold_date,discount,delievery_fees,total_price,status,cname,cphone,ccarman,ccarmodelname,ccarmodelyear,ccarplatenumber,delievery_time,is_delivered) VALUES ($1,$2,$3,$4,$5,$6,'Pending',$7,$8,$9,$10,$11,$12,$13,'No') RETURNING *;",
       [
         driverID,
         serial_number,
@@ -205,13 +206,19 @@ route.post("/getSerialBattery", async (req, res) => {
     "SELECT sold_date FROM orders WHERE serial_number=$1 LIMIT 1",
     [Rserial]
   );
+  const response2 = await pool.query(
+    "SELECT battery_name FROM current_batteries WHERE serial_number = $1",
+    [Rserial]
+  );
   console.log(response);
   if (response.rowCount == 0) {
     return res.status(404).json({ message: "Battery Not Found" });
   }
   const start_date = response.rows[0].sold_date;
+  const batteryName = response2.rows[0].battery_name;
   const timeL = timeLeft(start_date);
-  res.status(200).json(timeL);
+  const dataTosend = { ...timeL, batteryName };
+  res.status(200).json(dataTosend);
 });
 
 function timeLeft(isoDate) {
@@ -241,18 +248,23 @@ function timeLeft(isoDate) {
   return { exceeded: false, months, days };
 }
 
-route.post("/add-to-returned", async (req, res) => {
-  const { serial_number, claim_rec, newSN } = req.body;
+route.post("/replace-battery", async (req, res) => {
+  //we are going to improve this one making a new order from the same form get custommer new information, set new driver, the difference would be that it would be assigned with replaced_with to the old serial which we already have in this route
+  const { serial_number, newSN } = req.body;
   console.log(claim_rec);
   const present = new Date().toISOString().split("T")[0];
   try {
     await pool.query(
       "UPDATE current_batteries SET battery_status = 'Replaced', date_returned = $1 WHERE serial_number = $2",
-      [present, serial_number]
+      [present, serial_number] //change the old serial to replaced
     );
     await pool.query(
-      "UPDATE orders SET serial_number = $1, replaced_with = $2, rec_number= $3 WHERE serial_number = $4",
-      [newSN, serial_number, claim_rec, serial_number]
+      "UPDATE current_batteries SET battery_status = 'Replaced' WHERE serial_number = $1",
+      [newSN]
+    ); //change the new serial to replaced
+    await pool.query(
+      "UPDATE orders SET serial_number = $1, replaced_with = $2 WHERE serial_number = $3",
+      [newSN, serial_number, serial_number] //make the order change old with new and assign replaced with to the old SN
     );
     res.status(200).json({ message: "row updated succesfully" });
   } catch (err) {
