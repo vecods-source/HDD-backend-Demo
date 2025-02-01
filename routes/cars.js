@@ -1,5 +1,5 @@
 import express, { query } from "express";
-import pool from "../dp.js";
+import pool from "../config/dp.js";
 import bodyParser from "body-parser";
 const route = express.Router();
 
@@ -63,6 +63,7 @@ route.post("/searchBattery", async (req, res) => {
   }
 });
 
+//db helpers..........................................
 route.post("/get-battery-det", async (req, res) => {
   const { batteryName } = req.body;
 
@@ -82,6 +83,7 @@ route.post("/get-battery-det", async (req, res) => {
 });
 //................................................................................................................................
 
+//db helpers..........................................
 route.get("/get-orders", async (req, res) => {
   try {
     const data = await pool.query(
@@ -111,7 +113,7 @@ route.get("/get-orders", async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 });
-
+//..................................................................
 route.post("/insert-order", async (req, res) => {
   const {
     driver,
@@ -235,6 +237,7 @@ route.post("/getSerialBattery", async (req, res) => {
   }
 });
 
+//Helper functions.......................................................
 function timeLeft(isoDate) {
   const dateToCheck = new Date(isoDate);
   const dateAfterOneYear = new Date(dateToCheck);
@@ -261,7 +264,8 @@ function timeLeft(isoDate) {
 
   return { exceeded: false, months, days };
 }
-
+//......................................................
+//replace routes
 route.post("/replace-battery", async (req, res) => {
   //we are going to improve this one making a new order from the same form get custommer new information, set new driver, the difference would be that it would be assigned with replaced_with to the old serial which we already have in this route
   const { Rserial, NSerial, time, address, driver } = req.body;
