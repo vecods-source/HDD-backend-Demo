@@ -43,9 +43,10 @@ const login = async (req, res) => {
         userData.rows[0].password
       );
 
-      if (!validPassword)
+      if (!validPassword) {
+        console.log("invalid credentials");
         return res.status(401).json({ mesage: "Invalid credentials" });
-
+      }
       req.session.userId = userID;
       req.session.role = role;
       console.log(req.session);

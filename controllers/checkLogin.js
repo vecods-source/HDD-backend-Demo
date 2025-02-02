@@ -1,6 +1,7 @@
 export const check = (req, res) => {
   console.log(req.session);
   if (!req.session.userId) {
+    console.log("Not logged in");
     return res.status(401).json({ message: "Not logged in", loggedIn: false });
   }
 

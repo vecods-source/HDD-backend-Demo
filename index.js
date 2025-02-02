@@ -17,7 +17,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(sessionConfig);
 app.use(
   cors({
-    origin: "http://localhost:3000", // Allow requests from frontend
+    origin: "http://localhost:3001", // Allow requests from frontend
     credentials: true, // Allow cookies to be sent
   })
 );

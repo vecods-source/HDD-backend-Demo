@@ -1,4 +1,5 @@
 import timeF from "../utils/helpers.js";
+import pool from "../config/dp.js";
 const { timeLeft } = timeF;
 const getWarrantyCard = async (req, res) => {
   const { WarrantyCard } = req.body;
@@ -74,6 +75,7 @@ const replaceBatt = async (req, res) => {
       break;
   }
   try {
+    console.log("Installed By: ", driverID);
     await pool.query(
       "UPDATE current_batteries SET battery_status = 'Replaced', date_returned = $1 WHERE serial_number = $2",
       [present, Rserial]
@@ -83,7 +85,7 @@ const replaceBatt = async (req, res) => {
       [NSerial]
     );
     await pool.query(
-      "UPDATE orders SET serial_number = $1, replaced_with = $2, replace_date=$3, delievery_time=$4, caddress=$5, installed_by=$6, is_delivered= 'No' WHERE serial_number = $7",
+      "UPDATE orders SET serial_number = $1, replaced_with = $2, replace_date=$3, delievery_time=$4, caddress=$5, installed_by=$6, is_delivered= 'No', status= 'Pending' WHERE serial_number = $7",
       [NSerial, Rserial, present, time, address, driverID, Rserial]
     );
     res.status(200).json({ message: "battery updated succesfully" });

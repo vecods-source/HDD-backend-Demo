@@ -1,3 +1,4 @@
+import pool from "../config/dp.js";
 const battDet = async (req, res) => {
   const { batteryName } = req.body;
 
