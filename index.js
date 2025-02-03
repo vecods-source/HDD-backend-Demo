@@ -9,6 +9,8 @@ import checkRoute from "./routes/checkLoginRoute.js";
 import bodyParser from "body-parser";
 import cors from "cors";
 import sessionConfig from "./config/sessionConfig.js";
+import driverRoute from "./routes/driverRout.js";
+import updateorderRoute from "./routes/updateOrderRoute.js";
 const app = express();
 const port = 3030;
 
@@ -17,7 +19,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(sessionConfig);
 app.use(
   cors({
-    origin: "http://localhost:3001", // Allow requests from frontend
+    origin: "http://localhost:3000",
     credentials: true, // Allow cookies to be sent
   })
 );
@@ -29,6 +31,8 @@ app.use("/api", getbattDet);
 app.use("/api", orderRoute);
 app.use("/api", replaceRoute);
 app.use("/api", searchBattRoute);
+app.use("/api", driverRoute);
+app.use("/api", updateorderRoute);
 
 app.listen(port, () => {
   console.log(`running on portnum https/localhost:${port}`);

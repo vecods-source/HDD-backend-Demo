@@ -23,7 +23,9 @@ const register = async (req, res) => {
       message: "User registered!",
       userId: result.rows[0].id,
     });
+    console.log("User registered!");
   } catch (error) {
+    console.log(error.message);
     res.status(500).json({ error: error.message });
   }
 };
@@ -53,24 +55,20 @@ const login = async (req, res) => {
 
       res.json({
         message: "Login successful",
-        redirect:
-          role === "admin"
-            ? "http://localhost:3000/main"
-            : "http://localhost:3000/driver",
         userId: req.session.userId,
         userRole: req.session.role,
       });
+      console.log("logged in successfully");
     } else {
       console.log("no user with the given Credential found");
       res.json({
         message: "Login faild",
-        redirect: "http://localhost:3000",
         userId: null,
         userRole: null,
       });
     }
   } catch (err) {
-    console.log(err.message);
+    console.log("error cathing: ", err.message);
     res.json({
       message: "fetch user data faild",
     });

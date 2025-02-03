@@ -7,14 +7,16 @@ const getWarrantyCard = async (req, res) => {
     "SELECT sold_date, serial_number FROM orders WHERE warranty_card=$1 LIMIT 1",
     [WarrantyCard]
   );
+  if (response.rowCount == 0) {
+    return res.status(404).json({ message: "Battery Not Found" });
+  }
+  console.log(response.rows[0]);
   const serial_number = response.rows[0].serial_number;
   const response2 = await pool.query(
     "SELECT battery_name FROM current_batteries WHERE serial_number=$1",
     [serial_number]
   );
-  if (response.rowCount == 0) {
-    return res.status(404).json({ message: "Battery Not Found" });
-  }
+
   const battery_name = response2.rows[0].battery_name;
   const start_date = response.rows[0].sold_date;
   const timeL = timeLeft(start_date);
