@@ -12,7 +12,7 @@ export const updateOrder = async (req, res) => {
                 rec_number = $3,
                 payment_method = $4,
                 is_delivered = 'Yes',
-                installed_by = 6$
+                installed_by = $6
             WHERE serial_number = $5
         `;
     const values = [

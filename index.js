@@ -11,6 +11,7 @@ import cors from "cors";
 import sessionConfig from "./config/sessionConfig.js";
 import driverRoute from "./routes/driverRout.js";
 import updateorderRoute from "./routes/updateOrderRoute.js";
+import cancelRoute from "./routes/cancelRout.js";
 const app = express();
 const port = 3030;
 
@@ -33,6 +34,7 @@ app.use("/api", replaceRoute);
 app.use("/api", searchBattRoute);
 app.use("/api", driverRoute);
 app.use("/api", updateorderRoute);
+app.use("/api", cancelRoute);
 
 app.listen(port, () => {
   console.log(`running on portnum https/localhost:${port}`);
