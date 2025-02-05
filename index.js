@@ -12,6 +12,7 @@ import sessionConfig from "./config/sessionConfig.js";
 import driverRoute from "./routes/driverRout.js";
 import updateorderRoute from "./routes/updateOrderRoute.js";
 import cancelRoute from "./routes/cancelRout.js";
+import completeRoute from "./routes/completeOrder.js";
 const app = express();
 const port = 3030;
 
@@ -35,6 +36,7 @@ app.use("/api", searchBattRoute);
 app.use("/api", driverRoute);
 app.use("/api", updateorderRoute);
 app.use("/api", cancelRoute);
+app.use("/api", completeRoute);
 
 app.listen(port, () => {
   console.log(`running on portnum https/localhost:${port}`);
