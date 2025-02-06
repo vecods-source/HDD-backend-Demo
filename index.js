@@ -13,6 +13,7 @@ import driverRoute from "./routes/driverRout.js";
 import updateorderRoute from "./routes/updateOrderRoute.js";
 import cancelRoute from "./routes/cancelRout.js";
 import completeRoute from "./routes/completeOrder.js";
+import editOrder from "./routes/editOrder.js";
 const app = express();
 const port = 3030;
 
@@ -27,8 +28,10 @@ app.use(
 );
 
 // app.use("/api", route);
+
 app.use("/", authRoute);
 app.use("/", checkRoute);
+app.use("/api", editOrder);
 app.use("/api", getbattDet);
 app.use("/api", orderRoute);
 app.use("/api", replaceRoute);
