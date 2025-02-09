@@ -1,8 +1,15 @@
 import pool from "../config/dp.js";
 export const updateOrder = async (req, res) => {
-  const { serialNumber, paymethod, warranty_card, rec_number, note, driverid } =
-    req.body;
-
+  const {
+    orderSerial,
+    serialNumber,
+    paymethod,
+    warranty_card,
+    rec_number,
+    note,
+    driverid,
+  } = req.body;
+  console.log(serialNumber);
   try {
     const query = `
             UPDATE orders
@@ -12,7 +19,8 @@ export const updateOrder = async (req, res) => {
                 rec_number = $3,
                 payment_method = $4,
                 is_delivered = 'Yes',
-                installed_by = $6
+                installed_by = $6,
+                serial_number = $7
             WHERE serial_number = $5
         `;
     const values = [
@@ -20,8 +28,9 @@ export const updateOrder = async (req, res) => {
       warranty_card,
       rec_number,
       paymethod,
-      serialNumber,
+      orderSerial,
       driverid,
+      serialNumber,
     ];
 
     const result = await pool.query(query, values);

@@ -5,7 +5,7 @@ export const completeOrder = async (req, res) => {
   console.log(orderId);
   try {
     const query = await pool.query(
-      "UPDATE orders SET status = 'Done' WHERE serial_number = ANY($1) returning *",
+      "UPDATE orders SET status = 'Done', order_status = 'sold' WHERE serial_number = ANY($1) returning *",
       [orderId]
     );
     if (query.rows.length === 0) {

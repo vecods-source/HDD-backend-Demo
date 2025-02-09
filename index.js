@@ -14,6 +14,7 @@ import updateorderRoute from "./routes/updateOrderRoute.js";
 import cancelRoute from "./routes/cancelRout.js";
 import completeRoute from "./routes/completeOrder.js";
 import editOrder from "./routes/editOrder.js";
+import getSerials from "./routes/getSerials.js";
 const app = express();
 const port = 3030;
 
@@ -40,7 +41,7 @@ app.use("/api", driverRoute);
 app.use("/api", updateorderRoute);
 app.use("/api", cancelRoute);
 app.use("/api", completeRoute);
-
+app.use("/api", getSerials);
 app.listen(port, () => {
   console.log(`running on portnum https/localhost:${port}`);
 });

@@ -7,7 +7,7 @@ export const cancelController = async (req, res) => {
     let data;
     try {
       const query =
-        "UPDATE orders SET status = 'Cancelled' WHERE serial_number = $1 returning *";
+        "UPDATE orders SET order_status = 'cancelled' WHERE serial_number = $1 returning *";
       const inputs = [serial_number];
       data = await pool.query(query, inputs);
       console.log("First query result:", data); // Log to verify query result
@@ -44,9 +44,13 @@ export const cancelController = async (req, res) => {
         .status(404)
         .json({ message: "No order found, order was not cancelled" });
     }
-
+    const battery_name = data2.rows[0].battery_name;
+    const FullData = { ...data.rows[0], battery_name };
+    console.log("Order Cancellation Process", FullData);
     console.log("Order cancelled successfully");
-    return res.status(200).json({ message: "Order cancelled successfully" });
+    return res
+      .status(200)
+      .json({ message: "Order cancelled successfully", data: FullData });
   } catch (err) {
     console.log("Unexpected error:", err.message);
     return res

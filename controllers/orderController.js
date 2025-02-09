@@ -2,7 +2,9 @@ import pool from "../config/dp.js";
 const getOrders = async (req, res) => {
   try {
     const data = await pool.query(
-      "SELECT total_price, discount, delievery_fees, payment_method, installed_by, serial_number,status,sold_date FROM orders WHERE status = 'Pending' ORDER BY sold_date" // AND is_delivered='Yes'
+      //status pending or done meaning status to the accountant system.
+      //order status like cancelled, delivered, replace, free, or lost
+      "SELECT total_price, discount, delievery_fees, payment_method, installed_by, serial_number,status,sold_date,order_status,is_delivered FROM orders WHERE status = 'Pending' ORDER BY sold_date"
     );
 
     if (data.rowCount > 0) {
