@@ -32,9 +32,11 @@ export const updateOrder = async (req, res) => {
       driverid,
       serialNumber,
     ];
-
+    const query2 =
+      "UPDATE current_batteries SET battery_status = 'Sold' WHERE serial_number=$1";
+    const value2 = [serialNumber];
     const result = await pool.query(query, values);
-
+    await pool.query(query2, value2);
     if (result.rowCount === 0) {
       return res.status(404).json({ message: "Order not found" });
     }
