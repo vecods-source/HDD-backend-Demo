@@ -14,9 +14,7 @@ export const connectOrderDriver = async (req, res) => {
   }
   try {
     const query =
-      "SELECT * FROM orders WHERE installed_by=$1 AND status='Pending' AND is_delivered='No'";
-    const query2 =
-      "SELECT battery_name FROM current_batteries WHERE serial_number = $1;";
+      "SELECT * FROM orders WHERE installed_by=$1 AND status='Pending' AND is_delivered='No' AND order_status!='cancelled'";
     const data = await pool.query(query, [driveriD]);
 
     if (data.rows.length > 0) {

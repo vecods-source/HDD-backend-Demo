@@ -15,7 +15,20 @@ const battDet = async (req, res) => {
     //   "UPDATE current_batteries SET battery_status = 'Sold' WHERE serial_number = $1",
     //   [data.rows[0].serial_number]
     // );
-    res.status(200).json(data.rows[0]);
+    let counters = {
+      counter1: 0,
+      counter2: 0,
+      counter3: 0,
+      counter4: 0,
+      counter5: 0,
+    };
+    data.rows.forEach((element) => {
+      if (element.tech_id >= 1 && element.tech_id <= 5) {
+        counters[`counter${element.tech_id}`]++;
+      }
+    });
+    const newData = { ...data.rows[0], counters };
+    res.status(200).json(newData);
   } catch (err) {
     console.log("catch error: " + err);
     res.status(500).json({ message: "battery not found" });
