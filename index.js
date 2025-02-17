@@ -33,7 +33,6 @@ app.use(sessionConfig);
 app.use(cors(corsOptions));
 
 app.use("/", authRoute);
-o;
 app.use("/", checkRoute);
 app.use("/api", editOrder);
 app.use("/api", getbattDet);
