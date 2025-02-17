@@ -17,22 +17,23 @@ import editOrder from "./routes/editOrder.js";
 import getSerials from "./routes/getSerials.js";
 const app = express();
 const port = process.env.PORT || 3030;
+const corsOptions = {
+  origin: function (origin, callback) {
+    if (origin && origin.endsWith("-vecods-sources-projects.vercel.app")) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  credentials: true,
+};
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(sessionConfig);
-app.use(
-  cors({
-    origin:
-      process.env.NODE_ENV === "production"
-        ? "https://hdd-management-system1-huy2s8770-vecods-sources-projects.vercel.app/"
-        : "http://localhost:3000",
-    credentials: true, // Allow cookies to be sent
-  })
-);
-
-// app.use("/api", route);
+app.use(cors(corsOptions));
 
 app.use("/", authRoute);
+o;
 app.use("/", checkRoute);
 app.use("/api", editOrder);
 app.use("/api", getbattDet);
