@@ -16,14 +16,16 @@ import completeRoute from "./routes/completeOrder.js";
 import editOrder from "./routes/editOrder.js";
 import getSerials from "./routes/getSerials.js";
 const app = express();
-const port = 3030;
-
+const port = process.env.PORT || 3030;
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(sessionConfig);
 app.use(
   cors({
-    origin: "http://localhost:3000",
+    origin:
+      process.env.NODE_ENV === "production"
+        ? "https://hdd-management-system1-huy2s8770-vecods-sources-projects.vercel.app/"
+        : "http://localhost:3000",
     credentials: true, // Allow cookies to be sent
   })
 );
