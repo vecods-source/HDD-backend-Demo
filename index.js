@@ -30,7 +30,8 @@ const corsOptions = {
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(sessionConfig);
-app.use(cors(corsOptions));
+// app.use(cors(corsOptions));
+app.use(cors({ origin: "*", credentials: true }));
 
 app.use("/", authRoute);
 app.use("/", checkRoute);
