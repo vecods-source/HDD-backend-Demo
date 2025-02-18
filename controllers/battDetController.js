@@ -11,10 +11,6 @@ const battDet = async (req, res) => {
     if (data.rows.length === 0)
       return res.status(404).json({ message: "No Stock or Loaded batteries" });
     console.log("data found: " + data);
-    // await pool.query(
-    //   "UPDATE current_batteries SET battery_status = 'Sold' WHERE serial_number = $1",
-    //   [data.rows[0].serial_number]
-    // );
     let counters = {
       counter1: 0,
       counter2: 0,

@@ -1,5 +1,4 @@
 import express from "express";
-// import route from "./routes/cars.js";
 import authRoute from "./routes/authRoute.js";
 import getbattDet from "./routes/getbattDetRoute.js";
 import orderRoute from "./routes/ordersRoute.js";
@@ -19,24 +18,20 @@ const app = express();
 const port = process.env.PORT || 3030;
 const corsOptions = {
   origin: function (origin, callback) {
-    // Check if the origin ends with '-vecods-sources-projects.vercel.app'
-    if (origin && origin.endsWith("-vecods-sources-projects.vercel.app")) {
-      callback(null, true); // Allow the request
+    const allowedPattern = /^https:\/\/hdd-management-system[\w-]*$/;
+
+    if (origin && allowedPattern.test(origin)) {
+      callback(null, true);
     } else {
-      callback(new Error("Not allowed by CORS")); // Reject the request
+      callback(new Error("Not allowed by CORS"));
     }
   },
-  credentials: true, // Enable cookies to be sent if needed
+  credentials: true,
 };
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(sessionConfig);
-app.use(
-  cors({
-    origin: "http://localhost:3000",
-    credentials: true, // Allow cookies to be sent
-  })
-);
+app.use(cors(corsOptions));
 
 // app.use("/api", route);
 
