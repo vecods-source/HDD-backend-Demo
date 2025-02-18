@@ -34,7 +34,6 @@ const register = async (req, res) => {
 const login = async (req, res) => {
   const { username, password, role } = req.body;
   console.log("this is what we got: ", req.body);
-  console.log("this is what we got from sessions: ", req.session);
 
   try {
     const userData = await pool.query(
@@ -54,7 +53,7 @@ const login = async (req, res) => {
       }
       req.session.userId = userID;
       req.session.role = role;
-      console.log(req.session);
+      console.log("this is what we got from sessions: ", req.session);
 
       res.json({
         message: "Login successful",
