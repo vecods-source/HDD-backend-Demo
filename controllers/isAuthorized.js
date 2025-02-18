@@ -33,6 +33,7 @@ const register = async (req, res) => {
 // LOGIN
 const login = async (req, res) => {
   const { username, password, role } = req.body;
+  console.log("this is what we got: ", req.body);
   try {
     const userData = await pool.query(
       `SELECT password, ${role}_id From ${role}s WHERE username = $1`,
