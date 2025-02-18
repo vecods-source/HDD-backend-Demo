@@ -25,6 +25,12 @@ app.use(
     credentials: true,
   })
 );
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Credentials", "true");
+  next();
+});
+
+app.set("trust proxy", 1);
 
 app.use("/", authRoute);
 app.use("/", checkRoute);
