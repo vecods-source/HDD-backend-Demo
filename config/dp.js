@@ -9,10 +9,11 @@ const pool = new pg.Pool({
   database: process.env.DB_NAME || "default_db",
   password: process.env.DB_PASSWORD || "default_password",
   port: process.env.DB_PORT || 5432,
+  ssl: {
+    rejectUnauthorized: false,
+  },
 });
-// ssl: {
-//   rejectUnauthorized: false,
-// }
+
 pool
   .connect()
   .then(() => {
