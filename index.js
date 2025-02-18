@@ -19,19 +19,26 @@ const app = express();
 const port = process.env.PORT || 3030;
 const corsOptions = {
   origin: function (origin, callback) {
+    // Check if the origin ends with '-vecods-sources-projects.vercel.app'
     if (origin && origin.endsWith("-vecods-sources-projects.vercel.app")) {
-      callback(null, true);
+      callback(null, true); // Allow the request
     } else {
-      callback(new Error("Not allowed by CORS"));
+      callback(new Error("Not allowed by CORS")); // Reject the request
     }
   },
-  credentials: true,
+  credentials: true, // Enable cookies to be sent if needed
 };
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(sessionConfig);
-// app.use(cors(corsOptions));
-app.use(cors({ origin: "*", credentials: true }));
+app.use(
+  cors({
+    origin: "http://localhost:3000",
+    credentials: true, // Allow cookies to be sent
+  })
+);
+
+// app.use("/api", route);
 
 app.use("/", authRoute);
 app.use("/", checkRoute);
