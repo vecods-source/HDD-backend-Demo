@@ -11,7 +11,7 @@ const sessionConfig = session({
   secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
-  cookie: { secure: true, httpOnly: true, maxAge: null, sameSite: "none" },
+  cookie: { secure: false, httpOnly: false, maxAge: null, sameSite: "none" },
 });
 
 export default sessionConfig;
