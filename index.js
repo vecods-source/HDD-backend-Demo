@@ -18,21 +18,21 @@ const app = express();
 const port = process.env.PORT || 3030;
 const corsOptions = {
   origin: function (origin, callback) {
-    const allowedPattern = /^https:\/\/hdd-management-system[\w-]*$/;
-
-    if (origin && allowedPattern.test(origin)) {
+    if (origin && origin.startsWith("https://hdd-management-system")) {
       callback(null, true);
     } else {
       callback(new Error("Not allowed by CORS"));
     }
   },
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true,
 };
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(sessionConfig);
 app.use(cors(corsOptions));
-
+app.options("*", cors(corsOptions));
 // app.use("/api", route);
 
 app.use("/", authRoute);
