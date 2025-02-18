@@ -21,7 +21,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(sessionConfig);
 app.use(
   cors({
-    origin: "https://hdd-management-system1.vercel.app/",
+    origin: "https://hdd-management-system1.vercel.app",
     credentials: true,
   })
 );
