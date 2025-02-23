@@ -18,6 +18,8 @@ const app = express();
 const port = process.env.PORT || 3030;
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+app.set("trust proxy", 1);
+
 app.use(sessionConfig);
 app.use(
   cors({
@@ -27,10 +29,14 @@ app.use(
 );
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Credentials", "true");
+  res.header(
+    "Access-Control-Allow-Origin",
+    "https://hdd-management-system1.vercel.app"
+  );
+  res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, DELETE");
+  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
   next();
 });
-
-app.set("trust proxy", 1);
 
 app.use("/", authRoute);
 app.use("/", checkRoute);
