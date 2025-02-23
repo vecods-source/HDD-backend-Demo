@@ -33,6 +33,7 @@ const register = async (req, res) => {
 // LOGIN
 const login = async (req, res) => {
   const { username, password, role } = req.body;
+  console.log("hello world this the the username: ", username);
   console.log("this is what we got: ", req.body);
 
   try {
