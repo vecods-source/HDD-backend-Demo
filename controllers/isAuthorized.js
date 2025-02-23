@@ -54,7 +54,7 @@ const login = async (req, res) => {
       }
       req.session.userId = userID;
       req.session.role = role;
-      console.log("this is what we got from sessions: ", req.session);
+      console.log("this is what we got from sessions: ", req.session.userID);
 
       res.json({
         message: "Login successful",
